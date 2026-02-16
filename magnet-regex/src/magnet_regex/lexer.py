@@ -44,6 +44,25 @@ class TokenType(int, Enum):
     # Example: [^aeiou] matches anything that is not a lowercase vowel
     CARRET = 12
 
+    # When used in a character class between two characters, it defines a range
+    # Example: [a-z] matches any lowercase letter. [a-zA-Z0-9] matches any alphanumerical character
+    DASH = 13
+
+    # Special characters
+    # The "wildcard" matches any single character except a newline character.
+    # Example: h.t matches "hat", "hot", "h1t", etc
+    DOT = 14
+
+    # An anchor. It asserts that the current position is the end of the string or the end of a line
+    # in multiline mode.
+    # Example: world$ match "hello world" but does not match "world peace".
+    DOLLAR = 15
+
+    # The escape character has 2 purposes:
+    # 1. It removes the special meaning of a regex character: \. (to match a literal dot)
+    # 2. It signals the start of a special sequence: \d, \w, \s
+    ESCAPE = 16
+
 @dataclass
 class Token:
     t_type: TokenType
