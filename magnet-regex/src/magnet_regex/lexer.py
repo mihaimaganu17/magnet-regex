@@ -31,6 +31,19 @@ class TokenType(int, Enum):
     LPAREN = 8
     RPAREN = 9
 
+    # Character classes
+    # Matches any single character that is present inside the brackets.
+    # m[ei]hai matches both "mehai" or "mihai". Some special cases are [a-z] which matches all
+    # lowercase letter in the latin alphabet. Similar [A-Z] matches the uppercase and [0-9] matches
+    # any digit
+    LBRACKET = 10
+    RBRACKET = 11
+
+    # When used in a character class in the beginning: [^...], it matches all the characters which
+    # are not in the class.
+    # Example: [^aeiou] matches anything that is not a lowercase vowel
+    CARRET = 12
+
 @dataclass
 class Token:
     t_type: TokenType
