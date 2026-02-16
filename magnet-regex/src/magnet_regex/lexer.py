@@ -71,6 +71,18 @@ class TokenType(int, Enum):
     WHITESPACE = 21 # \s - Matches any whitespace character == [ \t\n\r\f\v].
     NON_WHITESPACE = 21 # \S - Matches any non-whitespace character == [^ \t\n\r\f\v].
 
+    # Word boundary - Matches the position between a word character (\w) and a non-word character
+    # (\W) or the start/end of a string.
+    # Example: \bcat\b matches "cat" in "The cat sat" but does not match "cat" in "tomcat".
+    WORD_BOUNDARY = 22 # \b
+    NON_WORD_BOUNDARY = 23 # \B
+
+    # Backreferences
+    # Matches the exact text that was previously captured by a capturing group ((...)). \1 refers to
+    # the first group, \2 to the second group, etc.
+    # Example: (\w)\1 matches any repeated character, like "oo" in "look" or "ll" in "hello"
+    BACKREF = 24 # \1, \2, etc.
+
 @dataclass
 class Token:
     t_type: TokenType
