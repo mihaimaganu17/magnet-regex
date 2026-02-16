@@ -93,8 +93,12 @@ class TokenType(int, Enum):
     # Example (?<=abc) checks if the string contains "abc" before the current position.
     LOOKBEHIND_POS = 27 # (?<=
     # Example (?<!abc) checks if the string does not contain "abc" before the current position.
-    LOOKBEHIND_NEG = 27 # (?<!
+    LOOKBEHIND_NEG = 28 # (?<!
+    # Example (?:http|https):// groups "http" and "https" for the | operatior, but you can't
+    # reference it as a captured group with \1
+    NON_CAPTURING = 29 # (?:
 
+    EOF = 30
 
 @dataclass
 class Token:
