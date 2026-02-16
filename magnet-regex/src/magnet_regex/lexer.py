@@ -61,7 +61,15 @@ class TokenType(int, Enum):
     # The escape character has 2 purposes:
     # 1. It removes the special meaning of a regex character: \. (to match a literal dot)
     # 2. It signals the start of a special sequence: \d, \w, \s
-    ESCAPE = 16
+    BACKSLASH = 16
+
+    # Special escape sequences
+    DIGIT = 17 # \d - Matches any digit == [0-9]
+    NON_DIGIT = 18 # \D - Matches any non-digit == [^0-9]
+    WORD = 19 # \w - Matches any word character (alphanumeric and underscore) == [a-zA-Z0-9_]
+    NON_WORD = 20 # \W - Matches any non-word character (alphanumeric and underscore) == [^a-zA-Z0-9_]
+    WHITESPACE = 21 # \s - Matches any whitespace character == [ \t\n\r\f\v].
+    NON_WHITESPACE = 21 # \S - Matches any non-whitespace character == [^ \t\n\r\f\v].
 
 @dataclass
 class Token:
