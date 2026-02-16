@@ -83,6 +83,15 @@ class TokenType(int, Enum):
     # Example: (\w)\1 matches any repeated character, like "oo" in "look" or "ll" in "hello"
     BACKREF = 24 # \1, \2, etc.
 
+    # Lookahead / Lookbehind markers -> Like peek for regex
+    # Example: (?= -> Password(?=.*[0-9]) checks if the password contains at least one digit.
+    # "Password123" and "Password abc 123" will match.
+    LOOKAHEAD_POS = 25 # (?=
+    # Example: (?= -> Password(?!.*[0-9]) checks if the password does not contain any digit.
+    # "Password123" and "Password abc 123" will not match.
+    LOOKAHEAD_NEG = 26 # (?!
+
+
 @dataclass
 class Token:
     t_type: TokenType
