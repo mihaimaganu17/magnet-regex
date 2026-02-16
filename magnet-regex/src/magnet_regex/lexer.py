@@ -90,6 +90,10 @@ class TokenType(int, Enum):
     # Example: (?= -> Password(?!.*[0-9]) checks if the password does not contain any digit.
     # "Password123" and "Password abc 123" will not match.
     LOOKAHEAD_NEG = 26 # (?!
+    # Example (?<=abc) checks if the string contains "abc" before the current position.
+    LOOKBEHIND_POS = 27 # (?<=
+    # Example (?<!abc) checks if the string does not contain "abc" before the current position.
+    LOOKBEHIND_NEG = 27 # (?<!
 
 
 @dataclass
