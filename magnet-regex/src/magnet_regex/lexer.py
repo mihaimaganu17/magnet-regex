@@ -2,8 +2,10 @@ from dataclasses import dataclass
 from enum import Enum
 from typing import Optional
 
+
 class TokenType(int, Enum):
     """All possible token types in our regex language"""
+
     # Regular character (A-Z, a-z, 0-9, etc.)
     CHAR = 0
     # (Zero or more of previous construct) -> ab*c: ac, abc, abbc, abbbc, etc.
@@ -64,41 +66,42 @@ class TokenType(int, Enum):
     BACKSLASH = 16
 
     # Special escape sequences
-    DIGIT = 17 # \d - Matches any digit == [0-9]
-    NON_DIGIT = 18 # \D - Matches any non-digit == [^0-9]
-    WORD = 19 # \w - Matches any word character (alphanumeric and underscore) == [a-zA-Z0-9_]
-    NON_WORD = 20 # \W - Matches any non-word character (alphanumeric and underscore) == [^a-zA-Z0-9_]
-    WHITESPACE = 21 # \s - Matches any whitespace character == [ \t\n\r\f\v].
-    NON_WHITESPACE = 21 # \S - Matches any non-whitespace character == [^ \t\n\r\f\v].
+    DIGIT = 17  # \d - Matches any digit == [0-9]
+    NON_DIGIT = 18  # \D - Matches any non-digit == [^0-9]
+    WORD = 19  # \w - Matches any word character (alphanumeric and underscore) == [a-zA-Z0-9_]
+    NON_WORD = 20  # \W - Matches any non-word character (alphanumeric and underscore) == [^a-zA-Z0-9_]
+    WHITESPACE = 21  # \s - Matches any whitespace character == [ \t\n\r\f\v].
+    NON_WHITESPACE = 21  # \S - Matches any non-whitespace character == [^ \t\n\r\f\v].
 
     # Word boundary - Matches the position between a word character (\w) and a non-word character
     # (\W) or the start/end of a string.
     # Example: \bcat\b matches "cat" in "The cat sat" but does not match "cat" in "tomcat".
-    WORD_BOUNDARY = 22 # \b
-    NON_WORD_BOUNDARY = 23 # \B
+    WORD_BOUNDARY = 22  # \b
+    NON_WORD_BOUNDARY = 23  # \B
 
     # Backreferences
     # Matches the exact text that was previously captured by a capturing group ((...)). \1 refers to
     # the first group, \2 to the second group, etc.
     # Example: (\w)\1 matches any repeated character, like "oo" in "look" or "ll" in "hello"
-    BACKREF = 24 # \1, \2, etc.
+    BACKREF = 24  # \1, \2, etc.
 
     # Lookahead / Lookbehind markers -> Like peek for regex
     # Example: (?= -> Password(?=.*[0-9]) checks if the password contains at least one digit.
     # "Password123" and "Password abc 123" will match.
-    LOOKAHEAD_POS = 25 # (?=
+    LOOKAHEAD_POS = 25  # (?=
     # Example: (?= -> Password(?!.*[0-9]) checks if the password does not contain any digit.
     # "Password123" and "Password abc 123" will not match.
-    LOOKAHEAD_NEG = 26 # (?!
+    LOOKAHEAD_NEG = 26  # (?!
     # Example (?<=abc) checks if the string contains "abc" before the current position.
-    LOOKBEHIND_POS = 27 # (?<=
+    LOOKBEHIND_POS = 27  # (?<=
     # Example (?<!abc) checks if the string does not contain "abc" before the current position.
-    LOOKBEHIND_NEG = 28 # (?<!
+    LOOKBEHIND_NEG = 28  # (?<!
     # Example (?:http|https):// groups "http" and "https" for the | operatior, but you can't
     # reference it as a captured group with \1
-    NON_CAPTURING = 29 # (?:
+    NON_CAPTURING = 29  # (?:
 
     EOF = 30
+
 
 @dataclass
 class Token:
