@@ -127,7 +127,13 @@ class Lexer:
             curr_char = self.current_char()
 
             if curr_char == "\\":
-                self._handle_escape()
+                token = self._handle_escape()
+                if token:
+                    tokens.append(token)
+            else:
+                self.advance()
+
+        return tokens
 
 
     def current_char(self) -> Optional[str]:
@@ -185,4 +191,8 @@ class Lexer:
             num = ""
             while next_char and next_char.isdigit():
                 num += next_char
-                next_char = self.advance()
+                self.advance()
+                next_char = self.current_char()
+            return Token(TokenType.BACKREF, f"\\{num}", start_pos)
+        else:
+            return None
