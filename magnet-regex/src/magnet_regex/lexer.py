@@ -113,9 +113,8 @@ class Token:
 class Lexer:
     def __init__(self, pattern: str):
         self.pattern = pattern
-        self.pos = 0    # Current index in the pattern
+        self.pos = 0  # Current index in the pattern
         self.length = len(pattern)
-
 
     def tokenize(self) -> list[Token]:
         """Convert the pattern into a stream of tokens"""
@@ -135,7 +134,6 @@ class Lexer:
 
         return tokens
 
-
     def current_char(self) -> Optional[str]:
         """Get the character at the current position from the underlying lexer's pattern. This is
         essentially peek.
@@ -145,13 +143,11 @@ class Lexer:
         else:
             return self.pattern[self.pos]
 
-
     def advance(self) -> Optional[str]:
         """Return the character at the current position and got to the next position"""
         char = self.current_char()
         self.pos += 1
         return char
-
 
     def _handle_escape(self) -> Optional[Token]:
         start_pos = self.pos
@@ -163,28 +159,28 @@ class Lexer:
                 f"Pattern cannot end with backslash at position {self.pos}"
             )
 
-        if next_char == 'd':
+        if next_char == "d":
             self.advance()
             return Token(TokenType.DIGIT, r"\d", start_pos)
-        elif next_char == 'D':
+        elif next_char == "D":
             self.advance()
             return Token(TokenType.NON_DIGIT, r"\D", start_pos)
-        elif next_char == 'w':
+        elif next_char == "w":
             self.advance()
             return Token(TokenType.WORD, r"\w", start_pos)
-        elif next_char == 'W':
+        elif next_char == "W":
             self.advance()
             return Token(TokenType.NON_WORD, r"\W", start_pos)
-        elif next_char == 's':
+        elif next_char == "s":
             self.advance()
             return Token(TokenType.WHITESPACE, r"\s", start_pos)
-        elif next_char == 'S':
+        elif next_char == "S":
             self.advance()
             return Token(TokenType.NON_WHITESPACE, r"\S", start_pos)
-        elif next_char == 'b':
+        elif next_char == "b":
             self.advance()
             return Token(TokenType.WORD_BOUNDARY, r"\b", start_pos)
-        elif next_char == 'B':
+        elif next_char == "B":
             self.advance()
             return Token(TokenType.NON_WORD_BOUNDARY, r"\B", start_pos)
         elif next_char.isdigit():
@@ -194,19 +190,19 @@ class Lexer:
                 self.advance()
                 next_char = self.current_char()
             return Token(TokenType.BACKREF, f"\\{num}", start_pos)
-        elif next_char == '\n':
+        elif next_char == "\n":
             self.advance()
             return Token(TokenType.CHAR, "\n", start_pos)
-        elif next_char == '\t':
+        elif next_char == "\t":
             self.advance()
             return Token(TokenType.CHAR, "\t", start_pos)
-        elif next_char == '\r':
+        elif next_char == "\r":
             self.advance()
             return Token(TokenType.CHAR, "\r", start_pos)
-        elif next_char == '\v':
+        elif next_char == "\v":
             self.advance()
             return Token(TokenType.CHAR, "\v", start_pos)
-        elif next_char == '\f':
+        elif next_char == "\f":
             self.advance()
             return Token(TokenType.CHAR, "\f", start_pos)
         else:
