@@ -44,7 +44,7 @@ class TokenType(int, Enum):
     # When used in a character class in the beginning: [^...], it matches all the characters which
     # are not in the class.
     # Example: [^aeiou] matches anything that is not a lowercase vowel
-    CARRET = 12
+    CARET = 12
 
     # When used in a character class between two characters, it defines a range
     # Example: [a-z] matches any lowercase letter. [a-zA-Z0-9] matches any alphanumerical character
@@ -152,8 +152,32 @@ class Lexer:
                 tokens.append(Token(TokenType.PIPE, curr_char, start_pos))
                 self.advance()
             elif curr_char == "(":
-                self._handle_group_start()
+                token = self._handle_group_start()
+                if token:
+                    tokens.append(token)
+            elif curr_char == ")":
+                tokens.append(Token(TokenType.RPAREN, curr_char, start_pos))
+                self.advance()
+            elif curr_char == "[":
+                tokens.append(Token(TokenType.LBRACKET, curr_char, start_pos))
+                self.advance()
+            elif curr_char == "]":
+                tokens.append(Token(TokenType.RBRACKET, curr_char, start_pos))
+                self.advance()
+            elif curr_char == "^":
+                tokens.append(Token(TokenType.CARET, curr_char, start_pos))
+                self.advance()
+            elif curr_char == "$":
+                tokens.append(Token(TokenType.DOLLAR, curr_char, start_pos))
+                self.advance()
+            elif curr_char == ".":
+                tokens.append(Token(TokenType.DOT, curr_char, start_pos))
+                self.advance()
+            elif curr_char == "-":
+                tokens.append(Token(TokenType.DASH, curr_char, start_pos))
+                self.advance()
             else:
+                tokens.append(Token(TokenType.CHAR, curr_char, start_pos))
                 self.advance()
 
         return tokens
