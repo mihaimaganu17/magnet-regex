@@ -180,6 +180,7 @@ class Lexer:
                 tokens.append(Token(TokenType.CHAR, curr_char, start_pos))
                 self.advance()
 
+        tokens.append(Token(TokenType.EOF, None, self.pos))
         return tokens
 
     def current_char(self) -> Optional[str]:
