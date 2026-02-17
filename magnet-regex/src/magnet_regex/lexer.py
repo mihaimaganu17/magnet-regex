@@ -129,6 +129,30 @@ class Lexer:
                 token = self._handle_escape()
                 if token:
                     tokens.append(token)
+                continue
+            elif curr_char == "*":
+                tokens.append(Token(TokenType.STAR, curr_char, start_pos))
+                self.advance()
+            elif curr_char == "+":
+                tokens.append(Token(TokenType.PLUS, curr_char, start_pos))
+                self.advance()
+            elif curr_char == "?":
+                tokens.append(Token(TokenType.QUESTION, curr_char, start_pos))
+                self.advance()
+            elif curr_char == "{":
+                tokens.append(Token(TokenType.LBRACE, curr_char, start_pos))
+                self.advance()
+            elif curr_char == "}":
+                tokens.append(Token(TokenType.RBRACE, curr_char, start_pos))
+                self.advance()
+            elif curr_char == ",":
+                tokens.append(Token(TokenType.COMMA, curr_char, start_pos))
+                self.advance()
+            elif curr_char == "|":
+                tokens.append(Token(TokenType.PIPE, curr_char, start_pos))
+                self.advance()
+            elif curr_char == "(":
+                self._handle_group_start()
             else:
                 self.advance()
 
