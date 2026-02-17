@@ -108,3 +108,26 @@ class Token:
     t_type: TokenType
     value: Optional[str] = None
     position: int = 0
+
+
+class Lexer:
+    def __init__(self, pattern: str):
+        self.pattern = pattern
+        self.pos = 0    # Current index in the pattern
+        self.length = len(pattern)
+
+
+    def tokenize(self) -> list[Token]:
+        """Convert the pattern into a stream of tokens"""
+        tokens = []
+
+        # While the cursor is not at the end of the string
+        while self.pos < self.length:
+            start_pos = self.pos
+            curr_chr = self.current_char()
+
+    def current_char(self) -> str | None:
+        if self.pos >= self.length:
+            return None
+        else:
+            return self.pattern[self.pos]
