@@ -232,3 +232,42 @@ class Lexer:
         else:
             self.advance()
             return Token(TokenType.CHAR, next_char, start_pos)
+
+    def _handle_group_start(self) -> Optional[Token]:
+        start_pos = self.pos
+        _lparen = self.advance()
+        curr_char = self.current_char()
+
+        if curr_char == "?":
+            self.advance()
+            curr_char = self.current_char()
+
+            if curr_char == ":":
+                self.advance()
+                return Token(TokenType.NON_CAPTURING, "(?:", start_pos)
+            elif curr_char == "=":
+                self.advance()
+                return Token(TokenType.LOOKAHEAD_POS, "(?=", start_pos)
+            elif curr_char == "!":
+                self.advance()
+                return Token(TokenType.LOOKAHEAD_NEG, "(?!", start_pos)
+            elif curr_char == "<":
+                self.advance()
+                curr_char = self.current_char()
+                if curr_char == "=":
+                    self.advance()
+                    return Token(TokenType.LOOKBEHIND_POS, "(?<=", start_pos)
+                elif curr_char == "!":
+                    self.advance()
+                    return Token(TokenType.LOOKBEHIND_NEG, "(?<!", start_pos)
+                else:
+                    raise ValueError(
+                        f"Unkown look behind modifier '(?<{curr_char}' at position {start_pos}"
+                    )
+            else:
+                raise ValueError(
+                    f"Unkown group modifier '(?{curr_char}' at position {start_pos}"
+                )
+
+        return Token(TokenType.LPAREN, "(", start_pos)
+
