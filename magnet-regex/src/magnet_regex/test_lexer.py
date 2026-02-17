@@ -1,6 +1,7 @@
 import unittest
 from magnet_regex.lexer import Lexer, Token, TokenType
 
+
 class TestLexer(unittest.TestCase):
     def test_tokenise_backref(self):
         lexer = Lexer(r"Backref \1\2 test")
@@ -25,7 +26,7 @@ class TestLexer(unittest.TestCase):
                 Token(TokenType.CHAR, r"s", 15),
                 Token(TokenType.CHAR, r"t", 16),
                 Token(TokenType.EOF, None, 17),
-            ]
+            ],
         )
 
     def test_demo_pattern(self):
@@ -51,5 +52,5 @@ class TestLexer(unittest.TestCase):
                 Token(TokenType.RPAREN, r")", 16),
                 Token(TokenType.QUESTION, r"?", 17),
                 Token(TokenType.EOF, None, 18),
-            ]
+            ],
         )

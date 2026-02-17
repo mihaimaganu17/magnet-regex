@@ -295,4 +295,3 @@ class Lexer:
                 )
 
         return Token(TokenType.LPAREN, "(", start_pos)
-
