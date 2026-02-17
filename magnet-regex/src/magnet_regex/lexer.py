@@ -194,5 +194,21 @@ class Lexer:
                 self.advance()
                 next_char = self.current_char()
             return Token(TokenType.BACKREF, f"\\{num}", start_pos)
+        elif next_char == '\n':
+            self.advance()
+            return Token(TokenType.CHAR, "\n", start_pos)
+        elif next_char == '\t':
+            self.advance()
+            return Token(TokenType.CHAR, "\t", start_pos)
+        elif next_char == '\r':
+            self.advance()
+            return Token(TokenType.CHAR, "\r", start_pos)
+        elif next_char == '\v':
+            self.advance()
+            return Token(TokenType.CHAR, "\v", start_pos)
+        elif next_char == '\f':
+            self.advance()
+            return Token(TokenType.CHAR, "\f", start_pos)
         else:
-            return None
+            self.advance()
+            return Token(TokenType.CHAR, next_char, start_pos)
