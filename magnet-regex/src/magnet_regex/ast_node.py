@@ -80,3 +80,11 @@ class ConcatNode(ASTNode):
 
     def __repr__(self):
         return f"Concat({len(self.children)} items)"
+
+@dataclass
+class AlternationNonde(ASTNode):
+    """This is a node where child nodes are separated by the pipe '|' regex"""
+    alternatives: list[ASTNode]
+
+    def __repr__(self):
+        return f"Alternation({len(self.alternatives)} branches)"
