@@ -97,3 +97,10 @@ class GroupNode(ASTNode):
 
     def __repr__(self):
         return f"Group#{self.group_number}({self.child})"
+
+@dataclass
+class NonCapturingGroupNode(ASTNode):
+    child: ASTNode
+
+    def __repr__(self):
+        return f"NonCapturingGroup({self.child})"
