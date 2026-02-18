@@ -67,8 +67,16 @@ class QuantifierNode(ASTNode):
             q = "+"
         else:
             q = f"{{{self.min_count}, {self.max_count}}}"
-        
+
         if not self.greedy:
             q += "?"
-        
+
         return f"Quantifier({self.child} {q})"
+
+@dataclass
+class ConcatNode(ASTNode):
+    """Represents a sequence of nodes"""
+    children: list[ASTNode]
+
+    def __repr__(self):
+        return f"Concat({len(self.children)} items)"
