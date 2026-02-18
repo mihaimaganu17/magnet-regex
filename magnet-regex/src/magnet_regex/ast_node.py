@@ -88,3 +88,12 @@ class AlternationNonde(ASTNode):
 
     def __repr__(self):
         return f"Alternation({len(self.alternatives)} branches)"
+
+
+@dataclass
+class GroupNode(ASTNode):
+    child: ASTNode
+    group_number: int # 1 - indexed (0 is for the entire string)
+
+    def __repr__(self):
+        return f"Group#{self.group_number}({self.child})"
