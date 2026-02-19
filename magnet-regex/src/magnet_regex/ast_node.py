@@ -104,3 +104,22 @@ class NonCapturingGroupNode(ASTNode):
 
     def __repr__(self):
         return f"NonCapturingGroup({self.child})"
+
+
+@dataclass
+class BackreferenceNode(ASTNode):
+    # Referencing previous captured group through indexing: \1, \2, etc
+    group_number: int
+
+    def __repr__(self):
+        return f"Backref(\\{self.group_number})"
+
+
+@dataclass
+class AnchorNode(ASTNode):
+    # '^', '$', 'b', 'B'
+    anchor_type: str
+
+    def __repr__(self):
+        symbols = {"^": "^", "$": "$", "b": r"\b", "B": r"\B"}
+        return f"Anchor({symbols.get(self.anchor_type, self.anchor_type)})"
