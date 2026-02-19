@@ -123,3 +123,21 @@ class AnchorNode(ASTNode):
     def __repr__(self):
         symbols = {"^": "^", "$": "$", "b": r"\b", "B": r"\B"}
         return f"Anchor({symbols.get(self.anchor_type, self.anchor_type)})"
+
+@dataclass
+class LookaheadNode(ASTNode):
+    child: ASTNode
+    positive: bool = True
+
+    def __repr__(self):
+        prefix = "?=" if self.positive else "?!"
+        return f"Lookahead({prefix}{self.child})"
+
+@dataclass
+class LookbehindNode(ASTNode):
+    child: ASTNode
+    positive: bool = True
+
+    def __repr__(self):
+        prefix = "?<=" if self.positive else "?<!"
+        return f"Lookbehind({prefix}{self.child})"
