@@ -57,6 +57,31 @@ class Parser:
                 items.append(CharNode(token.value))
                 continue
 
-            #self.parse_quantified()
+            self.parse_quantified()
 
         return ConcatNode(items)
+
+    def parse_quantified(self) -> ASTNode:
+        self.parse_atom()
+
+    def parse_atom(self) -> ASTNode:
+        token = self.current_token()
+
+        if token.t_type == TokenType.CHAR:
+            self.advance()
+            return CharNode(token.value)
+        elif token.t_type == TokenType.DOT:
+            self.advance()
+            return DotNode()
+        elif token.t_type == TokenType.CARET:
+            self.advance()
+            return AnchorNode("^")
+        elif token.t_type == TokenType.DOLLAR:
+            self.advance()
+            return AnchorNode("$")
+        elif token.t_type == TokenType.WORD_BOUNDARY:
+            self.advance()
+            return AnchorNode("b")
+        elif token.t_type == TokenType.NON_WORD_BOUNDARY:
+            self.advance()
+            return AnchorNode("B")
