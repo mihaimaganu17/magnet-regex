@@ -18,7 +18,8 @@ class Parser:
     def advance(self) -> Token:
         """Return the token at the current position and go to the next one"""
         token = self.current_token()
-        self.pos += 1 
+        if self.pos < len(self.tokens):
+            self.pos += 1 
         return token
 
     def expect(self, token_type: TokenType) -> Token:
