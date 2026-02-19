@@ -85,3 +85,21 @@ class Parser:
         elif token.t_type == TokenType.NON_WORD_BOUNDARY:
             self.advance()
             return AnchorNode("B")
+        elif token.t_type == TokenType.DIGIT:
+            self.advance()
+            return PredefinedClassNode("d")
+        elif token.t_type == TokenType.NON_DIGIT:
+            self.advance()
+            return PredefinedClassNode("D")
+        elif token.t_type == TokenType.WORD:
+            self.advance()
+            return PredefinedClassNode("w")
+        elif token.t_type == TokenType.NON_WORD:
+            self.advance()
+            return PredefinedClassNode("W")
+        elif token.t_type == TokenType.WHITESPACE:
+            self.advance()
+            return PredefinedClassNode("s")
+        elif token.t_type == TokenType.NON_WHITESPACE:
+            self.advance()
+            return PredefinedClassNode("S")
