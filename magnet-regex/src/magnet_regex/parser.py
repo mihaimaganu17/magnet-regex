@@ -31,3 +31,32 @@ class Parser:
                 f"Expected {token_type}, got {token.t_type} at position {token.position}"
             )
         return self.advance()
+
+    def parse(self) -> ASTNode:
+        """Recusively parses the regex, from the lowest preceding operator (parse_alteration) to 
+        to highest preceding one (parsing_atoms). Through this, we honor the grammar, by processing
+        / instantiating the atom first and """
+        self.parse_alternation()
+
+    def parse_alternation(self) -> ASTNode:
+        self.parse_concat()
+
+    def parse_concat(self) -> ASTNode:
+        items = []
+
+        while True:
+            token = self.current_token()
+
+            if token.t_type in {TokenType.PIPE, TokenType.RPAREN, TokenType.EOF}:
+                break
+
+            # This if checks for a literal dash outside a sequence ([a-z]) or for a literal comma
+            # outside a quantifier ({1, 2})
+            if token.t_type in {TokenType.DASH, TokenType.COMMA}:
+                self.advance()
+                items.append(CharNode(token.value))
+                continue
+
+            #self.parse_quantified()
+
+        return ConcatNode(items)
