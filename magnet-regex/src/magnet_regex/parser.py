@@ -103,3 +103,6 @@ class Parser:
         elif token.t_type == TokenType.NON_WHITESPACE:
             self.advance()
             return PredefinedClassNode("S")
+        elif token.t_type == TokenType.BACKREF:
+            self.advance()
+            return BackreferenceNode(int(token.value))
