@@ -108,7 +108,12 @@ class Parser:
             self.advance()
             return BackreferenceNode(int(token.value))
         elif token.t_type == TokenType.LBRACKET:
+            # We have a charcter class
             return self._parse_char_class()
+        elif token.t_type == TokenType.LPAREN:
+            # We have a group
+            return self._parse_group()
+
 
     def _parse_char_class(self) -> CharClassNode:
         self.expect(TokenType.LBRACKET)
@@ -208,6 +213,20 @@ class Parser:
         if not chars:
             raise ValueError("Empty character class")
         return CharClassNode(chars, negated)
+
+    def _parse_group(self) -> GroupNode:
+        self.expect(TokenType.LPAREN)
+
+        self.group_counter += 1
+        group_num = self.group_counter
+
+        # You can have any regex in a capturing group
+        child = self.parse_alternation()
+
+        self.expect(TokenType.RPAREN)
+
+        return GroupNode(child, group_num)
+
 
     def expect(self, expected: TokenType) -> Token:
         token = self.current_token()
