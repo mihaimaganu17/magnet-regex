@@ -161,6 +161,28 @@ class Parser:
 
                         for code in range(start_ord, end_ord+1):
                             chars.add(chr(code))
+                    else:
+                        # We treat both the character and the dash `-` as  literals
+                        chars.add(char)
+                        chars.add("-")
+                else:
+                    # If there is no dash afterwards, we add the character to the set
+                    chars.add(char)
+            elif token.t_type == TokenType.DIGIT:
+                self.advance()
+                chars.update("0123456789")
+            elif token.t_type == TokenType.WORD:
+                self.advance()
+                lowercase_letters = ["".join([chr(l) for l in range(ord('a'), ord('z')+1)])]
+                uppercase_letters = ["".join([chr(l) for l in range(ord('A'), ord('Z')+1)])]
+                chars.update(
+                    lowercase_letters + uppercase_letters + ["0123456789_"]
+                )
+            elif token.t_type == TokenType.WHITESPACE:
+                self.advance()
+                chars.update(" \t\n\r\f\v")
+
+
 
 
 
