@@ -113,6 +113,8 @@ class Parser:
         elif token.t_type == TokenType.LPAREN:
             # We have a group
             return self._parse_group()
+        elif token.t_type == TokenType.NON_CAPTURING:
+            return self._parse_non_capturing_group()
 
 
     def _parse_char_class(self) -> CharClassNode:
@@ -226,6 +228,13 @@ class Parser:
         self.expect(TokenType.RPAREN)
 
         return GroupNode(child, group_num)
+
+
+    def _parse_non_capturing_group(self) -> NonCapturingGroupNode:
+        self.advance()
+        child = self.parse_alternation()
+        self.expect(TokenType.RPAREN)
+        return NonCapturingGroupNode(child)
 
 
     def expect(self, expected: TokenType) -> Token:
