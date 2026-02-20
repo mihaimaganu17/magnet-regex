@@ -1,3 +1,4 @@
+import sys
 from lexer import Token, TokenType
 from ast_node import *
 
@@ -80,6 +81,9 @@ class Parser:
             self.advance()
             greedy = self._check_lazy_modifier()
             return QuantifierNode(atom, 0, 1, greedy)
+        # Handling range quantifiers
+        elif token.t_type == TokenType.RBRACE:
+            return self._parse_range_quantifier(atom)
 
 
     def _check_lazy_modifier(self) -> bool:
@@ -88,6 +92,42 @@ class Parser:
             self.advance()
             return True
         return False
+
+    def _parse_range_quantifier(self, atom: ASTNode) -> QuantifierNode:
+        self.expect(TokenType.RBRACE)
+
+        token = self.current_token()
+        # Range quantifiers can only be digits, otherwise return an error
+        if token.t_type != TokenType.CHAR or not token.value.isdigit():
+            raise ValueError(
+                f"Expected number in quantifier at position {token.position}"
+            )
+        min_count = int(token.value)
+        self.advance()
+        # Default in case we do not have a comma, making this only an exact quantifier match
+        max_count = min_count
+
+        # If we have a comma, we don't have just an exact match
+        if self.current_token().t_type == TokenType.COMMA:
+            self.advance()
+            token = self.current_token()
+
+            if token.t_type == TokenType.RBRACE:
+                max_count = sys.maxsize
+            elif token.t_type == TokenType.CHAR and token.value.isdigit:
+                max_count = int(token.value)
+                self.advance()
+            else:
+                raise ValueError(
+                    f"Expected number of '}}' at position {token.position}"
+                )
+
+        self.expect(TokenType.RBRACE)
+        greedy = not self._check_lazy_modifier()
+
+        node = QuantifierNode(atom, min_count, max_count, greedy)
+
+        return node
 
 
     def parse_atom(self) -> ASTNode:
