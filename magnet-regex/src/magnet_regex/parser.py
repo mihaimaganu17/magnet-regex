@@ -106,3 +106,17 @@ class Parser:
         elif token.t_type == TokenType.BACKREF:
             self.advance()
             return BackreferenceNode(int(token.value))
+        elif token.t_type == TokenType.LBRACKET:
+            return self._parse_char_class()
+
+    def _parse_char_class(self) -> CharClassNode:
+        self.expect(TokenType.LBRACKET)
+
+
+    def expect(self, expected: TokenType) -> Token:
+        token = self.current_token()
+        if token.t_type != expected:
+            raise ValueError(
+                f"Expected {expected}, got {token.t_type} at position {token.position}"
+            )
+        return self.advance()
