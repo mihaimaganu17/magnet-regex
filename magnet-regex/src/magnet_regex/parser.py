@@ -119,6 +119,10 @@ class Parser:
             return self._parse_lookahead(positive=True)
         elif token.t_type == TokenType.LOOKAHEAD_NEG:
             return self._parse_lookahead(positive=False)
+        elif token.t_type == TokenType.LOOKBEHIND_POS:
+            return self._parse_lookbehind(positive=True)
+        elif token.t_type == TokenType.LOOKBEHIND_NEG:
+            return self._parse_lookbehind(positive=False)
 
 
     def _parse_char_class(self) -> CharClassNode:
@@ -245,6 +249,12 @@ class Parser:
         child = self.parse_alternation()
         self.expect(TokenType.RPAREN)
         return LookaheadNode(child, positive)
+
+    def _parse_lookbehind(self, positive: bool) -> LookbehindNode:
+        self.advance()
+        child = self.parse_alternation()
+        self.expect(TokenType.RPAREN)
+        return LookbehindNode(child, positive)
 
 
     def expect(self, expected: TokenType) -> Token:
