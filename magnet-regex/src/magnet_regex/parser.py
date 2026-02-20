@@ -38,10 +38,17 @@ class Parser:
         """Recusively parses the regex, from the lowest preceding operator (parse_alteration) to
         to highest preceding one (parsing_atoms). Through this, we honor the grammar, by processing
         / instantiating the atom first and"""
-        self.parse_alternation()
+        ast = self.parse_alternation()
 
     def parse_alternation(self) -> ASTNode:
-        self.parse_concat()
+        alternatives = [self.parse_concat()]
+
+        while self.current_token().t_type == TokenType.PIPE:
+            self.advance()
+            alt = self.parse_concat()
+            alternatives.append(alt)
+
+        return AlternationNonde(alternatives)
 
     def parse_concat(self) -> ASTNode:
         items = []
@@ -59,7 +66,8 @@ class Parser:
                 items.append(CharNode(token.value))
                 continue
 
-            self.parse_quantified()
+            item = self.parse_quantified()
+            items.append(item)
 
         return ConcatNode(items)
 
