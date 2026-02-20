@@ -6,6 +6,7 @@ from typing import Optional, Set
 class ASTNode:
     pass
 
+
 @dataclass
 class CharNode(ASTNode):
     char: str
@@ -13,16 +14,19 @@ class CharNode(ASTNode):
     def __repr__(self):
         return f"Char({self.char!r})"
 
+
 @dataclass
-class DotNode(ASTNode): 
+class DotNode(ASTNode):
     def __repr__(self):
         return "Dor(.)"
 
+
 @dataclass
-class CharClassNode(ASTNode): 
+class CharClassNode(ASTNode):
     """Characters with regex brackets `[...]`"""
+
     chars: Set[str]
-    negated: bool = False # True if the class contains a caret: [^m]
+    negated: bool = False  # True if the class contains a caret: [^m]
 
     def __repr__(self):
         prefix = "^" if self.negated else ""
@@ -35,6 +39,7 @@ class CharClassNode(ASTNode):
 @dataclass
 class PredefinedClassNode(ASTNode):
     """A class node with a known key characteristic: \d, \D, \w, \W, etc"""
+
     # TODO: Shoud this be a enum?
     class_type: str
 
@@ -46,7 +51,8 @@ class PredefinedClassNode(ASTNode):
 class QuantifierNode(ASTNode):
     """Quantifies a given node. Quantifiers can be: *, +, ?, {n}, {n,m}, {n,}. See lexer.py for
     more information"""
-    child: ASTNode 
+
+    child: ASTNode
     min_count: int
     max_count: Optional[int]
     # Greedy mode (by default), matches as many characters as possible. For example, by default
@@ -73,17 +79,21 @@ class QuantifierNode(ASTNode):
 
         return f"Quantifier({self.child} {q})"
 
+
 @dataclass
 class ConcatNode(ASTNode):
     """Represents a sequence of nodes"""
+
     children: list[ASTNode]
 
     def __repr__(self):
         return f"Concat({len(self.children)} items)"
 
+
 @dataclass
 class AlternationNonde(ASTNode):
     """This is a node where child nodes are separated by the pipe '|' regex"""
+
     alternatives: list[ASTNode]
 
     def __repr__(self):
@@ -93,10 +103,11 @@ class AlternationNonde(ASTNode):
 @dataclass
 class GroupNode(ASTNode):
     child: ASTNode
-    group_number: int # 1 - indexed (0 is for the entire string)
+    group_number: int  # 1 - indexed (0 is for the entire string)
 
     def __repr__(self):
         return f"Group#{self.group_number}({self.child})"
+
 
 @dataclass
 class NonCapturingGroupNode(ASTNode):
@@ -124,6 +135,7 @@ class AnchorNode(ASTNode):
         symbols = {"^": "^", "$": "$", "b": r"\b", "B": r"\B"}
         return f"Anchor({symbols.get(self.anchor_type, self.anchor_type)})"
 
+
 @dataclass
 class LookaheadNode(ASTNode):
     child: ASTNode
@@ -132,6 +144,7 @@ class LookaheadNode(ASTNode):
     def __repr__(self):
         prefix = "?=" if self.positive else "?!"
         return f"Lookahead({prefix}{self.child})"
+
 
 @dataclass
 class LookbehindNode(ASTNode):

@@ -1,6 +1,7 @@
 from lexer import Token, TokenType
 from ast_node import *
 
+
 class Parser:
     def __init__(self, tokens: list[Token]):
         self.tokens = tokens
@@ -12,14 +13,14 @@ class Parser:
     def current_token(self) -> Token:
         if self.pos < len(self.tokens):
             return self.tokens[self.pos]
-        # If we consumed all the tokens, keep returning the last one 
+        # If we consumed all the tokens, keep returning the last one
         return self.tokens[-1]
 
     def advance(self) -> Token:
         """Return the token at the current position and go to the next one"""
         token = self.current_token()
         if self.pos < len(self.tokens):
-            self.pos += 1 
+            self.pos += 1
         return token
 
     def expect(self, token_type: TokenType) -> Token:
@@ -33,9 +34,9 @@ class Parser:
         return self.advance()
 
     def parse(self) -> ASTNode:
-        """Recusively parses the regex, from the lowest preceding operator (parse_alteration) to 
+        """Recusively parses the regex, from the lowest preceding operator (parse_alteration) to
         to highest preceding one (parsing_atoms). Through this, we honor the grammar, by processing
-        / instantiating the atom first and """
+        / instantiating the atom first and"""
         self.parse_alternation()
 
     def parse_alternation(self) -> ASTNode:
@@ -109,7 +110,6 @@ class Parser:
         elif token.t_type == TokenType.LBRACKET:
             return self._parse_char_class()
 
-
     def _parse_char_class(self) -> CharClassNode:
         self.expect(TokenType.LBRACKET)
 
@@ -151,15 +151,11 @@ class Parser:
                                 f"Invalid range {char}-{end_char}: start > end"
                             )
                         if start_ord < 0 or start_ord > 255:
-                            raise ValueError(
-                                f"Invalid ASCII {char} -> {start_ord}"
-                            )
+                            raise ValueError(f"Invalid ASCII {char} -> {start_ord}")
                         if end_ord < 0 or end_ord > 255:
-                            raise ValueError(
-                                f"Invalid ASCII {end_char} -> {end_ord}"
-                            )
+                            raise ValueError(f"Invalid ASCII {end_char} -> {end_ord}")
 
-                        for code in range(start_ord, end_ord+1):
+                        for code in range(start_ord, end_ord + 1):
                             chars.add(chr(code))
                     else:
                         # We treat both the character and the dash `-` as  literals
@@ -173,11 +169,13 @@ class Parser:
                 chars.update("0123456789")
             elif token.t_type == TokenType.WORD:
                 self.advance()
-                lowercase_letters = ["".join([chr(l) for l in range(ord('a'), ord('z')+1)])]
-                uppercase_letters = ["".join([chr(l) for l in range(ord('A'), ord('Z')+1)])]
-                chars.update(
-                    lowercase_letters + uppercase_letters + ["0123456789_"]
-                )
+                lowercase_letters = [
+                    "".join([chr(l) for l in range(ord("a"), ord("z") + 1)])
+                ]
+                uppercase_letters = [
+                    "".join([chr(l) for l in range(ord("A"), ord("Z") + 1)])
+                ]
+                chars.update(lowercase_letters + uppercase_letters + ["0123456789_"])
             elif token.t_type == TokenType.WHITESPACE:
                 self.advance()
                 chars.update(" \t\n\r\f\v")
@@ -211,7 +209,6 @@ class Parser:
             raise ValueError("Empty character class")
         return CharClassNode(chars, negated)
 
-
     def expect(self, expected: TokenType) -> Token:
         token = self.current_token()
         if token.t_type != expected:
@@ -219,7 +216,6 @@ class Parser:
                 f"Expected {expected}, got {token.t_type} at position {token.position}"
             )
         return self.advance()
-
 
     def peek_token(self, offset: int = 1) -> Token:
         offset_pos = self.pos + offset
