@@ -181,10 +181,29 @@ class Parser:
             elif token.t_type == TokenType.WHITESPACE:
                 self.advance()
                 chars.update(" \t\n\r\f\v")
-
-
-
-
+            elif token.t_type == TokenType.DASH:
+                self.advance()
+                chars.add("-")
+            # Inside a character calls, all these are literals
+            elif token.t_type in (
+                TokenType.PLUS,
+                TokenType.STAR,
+                TokenType.QUESTION,
+                TokenType.DOT,
+                TokenType.PIPE,
+                TokenType.CARET,
+                TokenType.DOLLAR,
+                TokenType.LBRACE,
+                TokenType.RBRACE,
+                TokenType.LPAREN,
+                TokenType.RPAREN,
+            ):
+                self.advance()
+                chars.add(char)
+            else:
+                raise ValueError(
+                    f"Unexpected token {token.t_type} in character class at position {self.pos}"
+                )
 
 
     def expect(self, expected: TokenType) -> Token:
