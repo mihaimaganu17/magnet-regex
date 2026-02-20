@@ -72,6 +72,11 @@ class Parser:
             self.advance()
             greedy = self._check_lazy_modifier()
             return QuantifierNode(atom, 0, None, greedy)
+        elif token.t_type == TokenType.PLUS:
+            self.advance()
+            greedy = self._check_lazy_modifier()
+            return QuantifierNode(atom, 1, None, greedy)
+
 
     def _check_lazy_modifier(self) -> bool:
         """Checks whether or not we have the lazy modifier: ?"""
