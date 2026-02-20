@@ -40,6 +40,14 @@ class Parser:
         / instantiating the atom first and"""
         ast = self.parse_alternation()
 
+        token = self.current_token()
+        if token.t_type != TokenType.EOF:
+            raise ValueError(
+                f"Unexpected token {token.t_type} at position {token.position}"
+            )
+
+        return ast
+
     def parse_alternation(self) -> ASTNode:
         alternatives = [self.parse_concat()]
 
