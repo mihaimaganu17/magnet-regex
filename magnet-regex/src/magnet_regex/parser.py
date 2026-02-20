@@ -115,6 +115,10 @@ class Parser:
             return self._parse_group()
         elif token.t_type == TokenType.NON_CAPTURING:
             return self._parse_non_capturing_group()
+        elif token.t_type == TokenType.LOOKAHEAD_POS:
+            return self._parse_lookahead(positive=True)
+        elif token.t_type == TokenType.LOOKAHEAD_NEG:
+            return self._parse_lookahead(positive=False)
 
 
     def _parse_char_class(self) -> CharClassNode:
@@ -235,6 +239,12 @@ class Parser:
         child = self.parse_alternation()
         self.expect(TokenType.RPAREN)
         return NonCapturingGroupNode(child)
+
+    def _parse_lookahead(self, positive: bool) -> LookaheadNode:
+        self.advance()
+        child = self.parse_alternation()
+        self.expect(TokenType.RPAREN)
+        return LookaheadNode(child, positive)
 
 
     def expect(self, expected: TokenType) -> Token:
