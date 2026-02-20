@@ -85,6 +85,7 @@ class Parser:
         elif token.t_type == TokenType.RBRACE:
             return self._parse_range_quantifier(atom)
 
+        return atom
 
     def _check_lazy_modifier(self) -> bool:
         """Checks whether or not we have the lazy modifier: ?"""
@@ -92,6 +93,7 @@ class Parser:
             self.advance()
             return True
         return False
+
 
     def _parse_range_quantifier(self, atom: ASTNode) -> QuantifierNode:
         self.expect(TokenType.RBRACE)
