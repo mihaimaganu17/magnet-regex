@@ -109,8 +109,60 @@ class Parser:
         elif token.t_type == TokenType.LBRACKET:
             return self._parse_char_class()
 
+
     def _parse_char_class(self) -> CharClassNode:
         self.expect(TokenType.LBRACKET)
+
+        # Check if the character class is negated through caret
+        negated = False
+        if self.current_token().t_type == TokenType.CARET:
+            negated = True
+            self.advance()
+
+        chars = set()
+
+        while self.current_token().t_type != TokenType.RBRACKET:
+            token = self.current_token()
+
+            # If we reached the last token and we still miss the right bracket, this is an error
+            if token.t_type == TokenType.EOF:
+                raise ValueError("Unclosed character class")
+
+            if token.type == TokenType.CHAR:
+                char = token.value
+                self.advance()
+
+                # check if we have a range
+                if self.current_token().t_type == TokenType.DASH:
+                    next_token = self.peek_token()
+                    # If we have a range of character
+                    if next_token.t_type == TokenType.CHAR:
+                        self.advance()
+                        end_char = self.current_token().value
+                        self.advance()
+
+                        # We add each character in that range into the set
+                        start_ord = ord(char)
+                        end_ord = ord(end_char)
+
+                        # Check if the range is valid
+                        if start_ord > end_ord:
+                            raise ValueError(
+                                f"Invalid range {char}-{end_char}: start > end"
+                            )
+                        if start_ord < 0 or start_ord > 255:
+                            raise ValueError(
+                                f"Invalid ASCII {char} -> {start_ord}"
+                            )
+                        if end_ord < 0 or end_ord > 255:
+                            raise ValueError(
+                                f"Invalid ASCII {end_char} -> {end_ord}"
+                            )
+
+                        for code in range(start_ord, end_ord+1):
+                            chars.add(chr(code))
+
+
 
 
     def expect(self, expected: TokenType) -> Token:
@@ -120,3 +172,10 @@ class Parser:
                 f"Expected {expected}, got {token.t_type} at position {token.position}"
             )
         return self.advance()
+
+
+    def peek_token(self, offset: int = 1) -> Token:
+        offset_pos = self.pos + offset
+        if offset >= len(self.tokens):
+            return self.tokens[-1]
+        return self.tokens[offset_pos]
