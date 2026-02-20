@@ -205,6 +205,12 @@ class Parser:
                     f"Unexpected token {token.t_type} in character class at position {self.pos}"
                 )
 
+        self.expect(TokenType.RBRACKET)
+
+        if not chars:
+            raise ValueError("Empty character class")
+        return CharClassNode(chars, negated)
+
 
     def expect(self, expected: TokenType) -> Token:
         token = self.current_token()
