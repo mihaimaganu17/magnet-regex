@@ -63,7 +63,23 @@ class Parser:
         return ConcatNode(items)
 
     def parse_quantified(self) -> ASTNode:
-        self.parse_atom()
+        # First parse the atom that will be quantified
+        atom = self.parse_atom()
+
+        token = self.current_token()
+
+        if token.t_type == TokenType.STAR:
+            self.advance()
+            greedy = self._check_lazy_modifier()
+            return QuantifierNode(atom, 0, None, greedy)
+
+    def _check_lazy_modifier(self) -> bool:
+        """Checks whether or not we have the lazy modifier: ?"""
+        if self.current_token().t_type == TokenType.QUESTION:
+            self.advance()
+            return True
+        return False
+
 
     def parse_atom(self) -> ASTNode:
         token = self.current_token()
@@ -123,7 +139,10 @@ class Parser:
             return self._parse_lookbehind(positive=True)
         elif token.t_type == TokenType.LOOKBEHIND_NEG:
             return self._parse_lookbehind(positive=False)
-
+        else:
+            raise ValueError(
+                f"Unexpected token {token.t_type} at position {token.position}"
+            )
 
     def _parse_char_class(self) -> CharClassNode:
         self.expect(TokenType.LBRACKET)
