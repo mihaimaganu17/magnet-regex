@@ -1,6 +1,6 @@
 import sys
-from lexer import Token, TokenType
-from ast_node import *
+from magnet_regex.lexer import Token, TokenType
+from magnet_regex.ast_node import *
 
 
 class Parser:
