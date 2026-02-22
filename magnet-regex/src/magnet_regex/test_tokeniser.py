@@ -10,3 +10,10 @@ class TestParser(unittest.TestCase):
         parser = Parser(tokens)
 
         print(parser.tokens)
+
+    def test_parser2(self):
+        lexer = Lexer(r"a\d{1}(?:foo|bar)")
+        tokens = lexer.tokenize()
+        parser = Parser(tokens)
+
+        print(parser.tokens)
