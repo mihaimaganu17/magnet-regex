@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 import string
 from typing import Optional
-from magnet_regex.ast_node import ASTNode, CharClassNode, CharNode, DotNode, PredefinedClassNode, QuantifierNode
+from magnet_regex.ast_node import ASTNode, CharClassNode, CharNode, ConcatNode, DotNode, PredefinedClassNode, QuantifierNode
 
 
 @dataclass
@@ -75,6 +75,8 @@ class Matcher:
             return self._match_predefined_class(node, pos)
         elif isinstance(node, QuantifierNode):
             return self._match_quantifier(node, pos)
+        elif isinstance(node, ConcatNode):
+            return self._match_concat(node, pos)
 
 
     def _match_char(self, node: CharNode, pos: int) -> Optional[int]:
@@ -185,3 +187,72 @@ class Matcher:
             return valid_matches[-1]
         else:
             return valid_matches[0]
+
+    def _match_concat(self, node: ConcatNode, pos: int) -> Optional[int]:
+        if not node.children:
+            return pos
+
+        return self._match_concat_recursive(node.children, 0, pos)
+
+    def _match_concat_recursive(
+        self, children: list[ASTNode], child_idx: int, pos: int
+    ) -> Optional[int]:
+        """Match the text starting at position `pos` recursively against the `children` nodes"""
+        # If we matched up to `child_idx` and it it greater than the children node count, we have
+        # a concat match and we return
+        if child_idx >= len(children):
+            return pos
+
+        child = children[child_idx]
+
+        if isinstance(child, QuantifierNode):
+            # Holds the first index offset after each match of the child node. It will be further filtered
+            matches = []
+            # Cursor to move along the text to collect all possible matches
+            current_pos = pos
+            count = 0
+
+            while True:
+                # If we reach or exceeded the max count, break out of the loop
+                if child.max_count and count >= child.max_count:
+                    break
+
+                next_pos = self._match_node(child.child, current_pos)
+
+                if next_pos is None or next_pos == current_pos:
+                    break
+                count += 1
+
+                current_pos = next_pos
+                matches.append(current_pos)
+
+            # If we have a star quantifier, a minimum of 0 is also a valid match
+            valid_matches = [pos] if child.min_count == 0 else []
+            valid_matches.extend(
+                # Only consider matches that fulfill minimum count
+                [m for i, m in enumerate(matches, 1) if i >= child.min_count]
+            )
+
+            if not valid_matches:
+                return None
+
+            # Refactor with match_quantifier until this point
+            if child.greedy:
+                valid_matches.reverse()
+
+            # Try all the possible matches for the quantifier
+            for match_end in valid_matches:
+                # move forward in the children's list
+                result_idx = self._match_concat_recursive(
+                    children, child_idx + 1, match_end
+                )
+                if result_idx is not None:
+                    return result_idx
+
+            return None
+        else:
+            next_pos = self._match_node(child, pos)
+            if next_pos is None:
+                return None
+            # If we reached this point, we matched and we go to the next child
+            return self._match_concat_recursive(children, child_idx + 1, next_pos)
