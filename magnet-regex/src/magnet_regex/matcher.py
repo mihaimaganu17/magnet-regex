@@ -40,13 +40,9 @@ class Matcher:
 
     def _init_char_classes(self):
         self.digit_chars = set("0123456789")
-        lowercase_letters = [
-            "".join([chr(l) for l in range(ord("a"), ord("z") + 1)])
-        ]
-        uppercase_letters = [
-            "".join([chr(l) for l in range(ord("A"), ord("Z") + 1)])
-        ]
-        self.word_chars = set(lowercase_letters + uppercase_letters + self.digit_chars + "_")
+        lowercase_letters = [chr(l) for l in range(ord("a"), ord("z") + 1)]
+        uppercase_letters = [chr(l) for l in range(ord("A"), ord("Z") + 1)]
+        self.word_chars = set(lowercase_letters + uppercase_letters + list(self.digit_chars) + ["_"])
         # OR
         self.word_chars = set(string.ascii_letters + string.digits + "_")
         self.whitespace_chars = set(" \t\n\r\f\v")
@@ -57,7 +53,16 @@ class Matcher:
         self.length = len(text)
         self.captures = {}
 
-        self._match_node(self.ast, start)
+        end_pos = self._match_node(self.ast, start)
+
+        if end_pos is not None:
+            return Match(
+                start=start,
+                end=end_pos,
+                text=text[start:end_pos],
+                groups=self.captures.copy(),
+            )
+        return None
 
     def _match_node(self, node: ASTNode, pos: int) -> Optional[int]:
         """Dispatches the call to the appropriate handler based on node type and return the first
@@ -91,6 +96,8 @@ class Matcher:
             return self._match_lookahead(node, pos)
         elif isinstance(node, LookbehindNode):
             return self._match_lookbehind(node, pos)
+        else:
+            raise ValueError("Unhandled node")
 
     def _match_char(self, node: CharNode, pos: int) -> Optional[int]:
         if pos >= self.length:

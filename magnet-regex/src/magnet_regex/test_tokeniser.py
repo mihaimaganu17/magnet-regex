@@ -1,6 +1,7 @@
 import unittest
 from magnet_regex.lexer import Lexer
 from magnet_regex.parser import Parser
+from magnet_regex.matcher import Matcher
 
 
 class TestParser(unittest.TestCase):
@@ -17,3 +18,12 @@ class TestParser(unittest.TestCase):
         parser = Parser(tokens)
 
         print(parser.tokens)
+
+    def test_matcher(self):
+        lexer = Lexer(r"ab*c|d")
+        tokens = lexer.tokenize()
+        parser = Parser(tokens)
+        ast = parser.parse()
+        matcher = Matcher(ast)
+
+        print(matcher.match("abbc"))
