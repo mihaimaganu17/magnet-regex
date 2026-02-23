@@ -67,9 +67,6 @@ class Matcher:
     def _match_node(self, node: ASTNode, pos: int) -> Optional[int]:
         """Dispatches the call to the appropriate handler based on node type and return the first
         integer offset after the match, if the node matches"""
-        if pos >= self.length:
-            return None
-
         if isinstance(node, CharNode):
             return self._match_char(node, pos)
         elif isinstance(node, DotNode):
@@ -338,6 +335,7 @@ class Matcher:
                 return pos
             return None
         elif node.anchor_type == "$":
+            print(node)
             if pos == self.length:
                 return pos
             if self.multiline and pos < self.length and self.text[pos] == '\n':
@@ -357,6 +355,7 @@ class Matcher:
             if before_is_word == after_is_word:
                 return pos
             return None
+        return None
 
     def _match_lookahead(self, node: LookaheadNode, pos: int) -> Optional[int]:
         end_pos = self._match_node(node.child, pos)
