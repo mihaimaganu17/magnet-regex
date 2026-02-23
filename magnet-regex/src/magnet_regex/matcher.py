@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 import string
 from typing import Optional
-from magnet_regex.ast_node import ASTNode, AlternationNonde, AnchorNode, BackreferenceNode, CharClassNode, CharNode, ConcatNode, DotNode, GroupNode, NonCapturingGroupNode, PredefinedClassNode, QuantifierNode
+from magnet_regex.ast_node import ASTNode, AlternationNonde, AnchorNode, BackreferenceNode, CharClassNode, CharNode, ConcatNode, DotNode, GroupNode, LookaheadNode, NonCapturingGroupNode, PredefinedClassNode, QuantifierNode
 
 
 @dataclass
@@ -87,6 +87,8 @@ class Matcher:
             return self._match_backref(node, pos)
         elif isinstance(node, AnchorNode):
             return self._match_anchor(node, pos)
+        elif isinstance(node, LookaheadNode):
+            return self._match_lookahead(node, pos)
 
     def _match_char(self, node: CharNode, pos: int) -> Optional[int]:
         if pos >= self.length:
@@ -346,3 +348,13 @@ class Matcher:
             if before_is_word == after_is_word:
                 return pos
             return None
+
+    def _match_lookahead(self, node: LookaheadNode, pos: int) -> Optional[int]:
+        end_pos = self._match_node(node.child, pos)
+
+        matched = end_pos is not None
+
+        if matched == node.positive:
+            return pos
+
+        return None
