@@ -64,6 +64,22 @@ class Matcher:
             )
         return None
 
+    def search(self, text: str) -> Optional[Match]:
+        self.text = text
+        self.length = len(text)
+
+        for start in range(len(text) + 1):
+            self.captures = {}
+            end_pos = self._match_node(self.ast, start)
+
+            if end_pos is not None:
+                return Match(
+                    start=start,
+                    end=end_pos,
+                    text=text[start:end_pos],
+                    groups=self.captures.copy(),
+                )
+
     def _match_node(self, node: ASTNode, pos: int) -> Optional[int]:
         """Dispatches the call to the appropriate handler based on node type and return the first
         integer offset after the match, if the node matches"""
