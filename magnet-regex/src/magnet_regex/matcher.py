@@ -79,6 +79,7 @@ class Matcher:
                     text=text[start:end_pos],
                     groups=self.captures.copy(),
                 )
+        return None
 
     def _match_node(self, node: ASTNode, pos: int) -> Optional[int]:
         """Dispatches the call to the appropriate handler based on node type and return the first

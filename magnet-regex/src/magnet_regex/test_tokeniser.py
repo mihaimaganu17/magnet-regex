@@ -36,3 +36,12 @@ class TestParser(unittest.TestCase):
         matcher = Matcher(ast)
 
         print(matcher.match("world hello", 6))
+
+    def test_matcher3(self):
+        lexer = Lexer(r"hello$")
+        tokens = lexer.tokenize()
+        parser = Parser(tokens)
+        ast = parser.parse()
+        matcher = Matcher(ast)
+
+        print(matcher.search("world hello"))
