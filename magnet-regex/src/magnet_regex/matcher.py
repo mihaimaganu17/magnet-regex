@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 import string
 from typing import Optional
-from magnet_regex.ast_node import ASTNode, AlternationNonde, CharClassNode, CharNode, ConcatNode, DotNode, PredefinedClassNode, QuantifierNode
+from magnet_regex.ast_node import ASTNode, AlternationNonde, CharClassNode, CharNode, ConcatNode, DotNode, GroupNode, PredefinedClassNode, QuantifierNode
 
 
 @dataclass
@@ -79,7 +79,8 @@ class Matcher:
             return self._match_concat(node, pos)
         elif isinstance(node, AlternationNonde):
             return self._match_alternation(node, pos)
-
+        elif isinstance(node, GroupNode):
+            return self._match_group(node, pos)
 
     def _match_char(self, node: CharNode, pos: int) -> Optional[int]:
         if pos >= self.length:
@@ -265,4 +266,22 @@ class Matcher:
 
             if end_pos is not None:
                 return end_pos
+        return None
+
+    def _match_group(self, node: GroupNode, pos: int) -> Optional[int]:
+        # Save the old capture in case we need to backtrack
+        old_capture = self.captures.get(node.group_number)
+
+        end_pos = self._match_node(node.child, pos)
+
+        # If we matched, we store the capture
+        if end_pos is not None:
+            self.captures[node.group_number] = self.text[pos:end_pos]
+            return end_pos
+        # TODO: Should this be in backreference?
+        # else:
+        #    if old_capture is not None:
+        #        self.captures[node.group_number] = old_capture
+        #    elif node.group_number in self.captures:
+        #        del self.captures[node.group_number]
         return None
