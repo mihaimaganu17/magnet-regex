@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 from typing import Optional
-from magnet_regex.ast_node import ASTNode
+from magnet_regex.ast_node import ASTNode, CharNode
 
 
 @dataclass
@@ -32,3 +32,36 @@ class Matcher:
 
         # State during matching
         self.text = ""
+        self.length = 0
+        self.captures: dict[int, Optional[str]] = {}
+
+    def match(self, text: str, start: int = 0) -> Optional[Match]:
+        # Resetting previous state
+        self.text = text
+        self.length = len(text)
+        self.captures = {}
+
+        self._match_node(self.ast, start)
+
+    def _match_node(self, node: ASTNode, pos: int) -> Optional[int]:
+        """Dispatches the call to the appropriate handler based on node type"""
+        if pos >= self.length:
+            return None
+
+        if isinstance(node, CharNode):
+            return self._match_char(node, pos)
+
+
+    def _match_char(self, node: CharNode, pos: int) -> Optional[int]:
+        if pos >= self.length:
+            return None
+
+        text_char = self.text[pos]
+        pattern_char = node.char
+
+        if self.ignore_case:
+            text_char = text_char.lower()
+            pattern_char = pattern_char.lower()
+
+        if text_char == pattern_char:
+            return pos + 1
