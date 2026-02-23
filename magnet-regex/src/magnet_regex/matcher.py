@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 from typing import Optional
-from magnet_regex.ast_node import ASTNode, CharNode, DotNode
+from magnet_regex.ast_node import ASTNode, CharClassNode, CharNode, DotNode
 
 
 @dataclass
@@ -51,8 +51,10 @@ class Matcher:
 
         if isinstance(node, CharNode):
             return self._match_char(node, pos)
-        if isinstance(node, DotNode):
+        elif isinstance(node, DotNode):
             return self._match_dot(node, pos)
+        elif isinstance(node, CharClassNode):
+            return self._match_char_class(node, pos)
 
 
     def _match_char(self, node: CharNode, pos: int) -> Optional[int]:
@@ -82,3 +84,23 @@ class Matcher:
         if not self.dotall and char == '\n':
             return None
         return pos + 1
+
+    def _match_char_class(self, node: CharClassNode, pos: int) -> Optional[int]:
+        if pos >= self.length:
+            return None
+
+        char = self.text[pos]
+        chars = node.chars
+        if self.ignore_case:
+            char = char.lower()
+            chars = set(char.lower for char in chars)
+
+        char_belongs = char in chars
+
+        if self.ignore_case:
+            char = char.lower()
+
+        if node.negated != char_belongs:
+            return pos + 1
+        else:
+            return None
