@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 import string
 from typing import Optional
-from magnet_regex.ast_node import ASTNode, CharClassNode, CharNode, ConcatNode, DotNode, PredefinedClassNode, QuantifierNode
+from magnet_regex.ast_node import ASTNode, AlternationNonde, CharClassNode, CharNode, ConcatNode, DotNode, PredefinedClassNode, QuantifierNode
 
 
 @dataclass
@@ -77,6 +77,8 @@ class Matcher:
             return self._match_quantifier(node, pos)
         elif isinstance(node, ConcatNode):
             return self._match_concat(node, pos)
+        elif isinstance(node, AlternationNonde):
+            return self._match_alternation(node, pos)
 
 
     def _match_char(self, node: CharNode, pos: int) -> Optional[int]:
@@ -256,3 +258,11 @@ class Matcher:
                 return None
             # If we reached this point, we matched and we go to the next child
             return self._match_concat_recursive(children, child_idx + 1, next_pos)
+
+    def _match_alternation(self, node: AlternationNonde, pos: int) -> Optional[int]:
+        for alt in node.alternatives:
+            end_pos = self._match_node(alt, pos)
+
+            if end_pos is not None:
+                return end_pos
+        return None
