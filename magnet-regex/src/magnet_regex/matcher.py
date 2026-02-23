@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 import string
 from typing import Optional
-from magnet_regex.ast_node import ASTNode, CharClassNode, CharNode, DotNode, PredefinedClassNode
+from magnet_regex.ast_node import ASTNode, CharClassNode, CharNode, DotNode, PredefinedClassNode, QuantifierNode
 
 
 @dataclass
@@ -73,6 +73,8 @@ class Matcher:
             return self._match_char_class(node, pos)
         elif isinstance(node, PredefinedClassNode):
             return self._match_predefined_class(node, pos)
+        elif isinstance(node, QuantifierNode):
+            return self._match_quantifier(node, pos)
 
 
     def _match_char(self, node: CharNode, pos: int) -> Optional[int]:
@@ -147,3 +149,39 @@ class Matcher:
             return pos + 1
 
         return None
+
+    def _match_quantifier(self, node: QuantifierNode, pos: int) -> Optional[int]:
+        # Holds the first index offset after each match of the child node. It will be further filtered
+        matches = []
+        # Cursor to move along the text to collect all possible matches
+        current_pos = pos
+        count = 0
+
+        while True:
+            # If we reach or exceeded the max count, break out of the loop
+            if node.max_count and count >= node.max_count:
+                break
+
+            next_pos = self._match_node(node.child, current_pos)
+
+            if next_pos is None or next_pos == current_pos:
+                break
+            count += 1
+
+            current_pos = next_pos
+            matches.append(current_pos)
+
+        # If we have a star quantifier, a minimum of 0 is also a valid match
+        valid_matches = [pos] if node.min_count == 0 else []
+        valid_matches.extend(
+            # Only consider matches that fulfill minimum count
+            [m for i, m in enumerate(matches, 1) if i >= node.min_count]
+        )
+
+        if not valid_matches:
+            return None
+
+        if node.greedy:
+            return valid_matches[-1]
+        else:
+            return valid_matches[0]
