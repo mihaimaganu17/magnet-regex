@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 import string
 from typing import Optional
-from magnet_regex.ast_node import ASTNode, AlternationNonde, BackreferenceNode, CharClassNode, CharNode, ConcatNode, DotNode, GroupNode, NonCapturingGroupNode, PredefinedClassNode, QuantifierNode
+from magnet_regex.ast_node import ASTNode, AlternationNonde, AnchorNode, BackreferenceNode, CharClassNode, CharNode, ConcatNode, DotNode, GroupNode, NonCapturingGroupNode, PredefinedClassNode, QuantifierNode
 
 
 @dataclass
@@ -85,6 +85,8 @@ class Matcher:
             return self._match_non_capturing_group(node, pos)
         elif isinstance(node, BackreferenceNode):
             return self._match_backref(node, pos)
+        elif isinstance(node, AnchorNode):
+            return self._match_anchor(node, pos)
 
     def _match_char(self, node: CharNode, pos: int) -> Optional[int]:
         if pos >= self.length:
@@ -316,3 +318,31 @@ class Matcher:
                 return end_pos
 
         return None
+
+    def _match_anchor(self, node: AnchorNode, pos: int) -> Optional[int]:
+        if node.anchor_type == "^":
+            if pos == 0:
+                return pos
+            if self.multiline and pos > 0 and self.text[pos-1] == "\n":
+                return pos
+            return None
+        elif node.anchor_type == "$":
+            if pos == self.length:
+                return pos
+            if self.multiline and pos < self.length and self.text[pos] == '\n':
+                return pos
+            return None
+        elif node.anchor_type == "b":
+            before_is_word = pos > 0 and self.text[pos - 1] in self.word_chars
+            after_is_word = pos < self.length and self.text[pos] in self.word_chars
+
+            if before_is_word != after_is_word:
+                return pos
+            return None
+        elif node.anchor_type == "B":
+            before_is_word = pos > 0 and self.text[pos - 1] in self.word_chars
+            after_is_word = pos < self.length and self.text[pos] in self.word_chars
+
+            if before_is_word == after_is_word:
+                return pos
+            return None
