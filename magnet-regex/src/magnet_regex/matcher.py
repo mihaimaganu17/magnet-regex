@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 import string
 from typing import Optional
-from magnet_regex.ast_node import ASTNode, AlternationNonde, AnchorNode, BackreferenceNode, CharClassNode, CharNode, ConcatNode, DotNode, GroupNode, LookaheadNode, NonCapturingGroupNode, PredefinedClassNode, QuantifierNode
+from magnet_regex.ast_node import ASTNode, AlternationNonde, AnchorNode, BackreferenceNode, CharClassNode, CharNode, ConcatNode, DotNode, GroupNode, LookaheadNode, LookbehindNode, NonCapturingGroupNode, PredefinedClassNode, QuantifierNode
 
 
 @dataclass
@@ -89,6 +89,8 @@ class Matcher:
             return self._match_anchor(node, pos)
         elif isinstance(node, LookaheadNode):
             return self._match_lookahead(node, pos)
+        elif isinstance(node, LookbehindNode):
+            return self._match_lookbehind(node, pos)
 
     def _match_char(self, node: CharNode, pos: int) -> Optional[int]:
         if pos >= self.length:
@@ -357,4 +359,18 @@ class Matcher:
         if matched == node.positive:
             return pos
 
+        return None
+
+    def _match_lookbehind(self, node: LookbehindNode, pos: int) -> Optional[int]:
+        found_match = False
+
+        # Going backwards from the current position
+        for start in range(pos, -1, -1):
+            end_pos = self._match_node(node.child, start)
+
+            if end_pos == pos:
+                found_match = True
+
+        if found_match == node.positive:
+            return pos
         return None
