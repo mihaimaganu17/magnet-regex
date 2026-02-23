@@ -81,6 +81,29 @@ class Matcher:
                 )
         return None
 
+    def findall(self, text: str) -> list[Match]:
+        self.text = text
+        self.length = len(text)
+        matches = []
+        pos = 0
+
+        while pos <= len(text):
+            self.captures = {}
+            end_pos = self._match_node(self.ast, pos)
+
+            if end_pos is not None:
+                match = Match(
+                    start=pos,
+                    end=end_pos,
+                    text=text[pos:end_pos],
+                    groups=self.captures.copy(),
+                )
+                matches.append(match)
+                pos = end_pos if end_pos > pos else pos + 1
+            else:
+                pos += 1
+        return matches
+
     def _match_node(self, node: ASTNode, pos: int) -> Optional[int]:
         """Dispatches the call to the appropriate handler based on node type and return the first
         integer offset after the match, if the node matches"""
