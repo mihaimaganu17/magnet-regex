@@ -40,12 +40,11 @@ class CharClassNode(ASTNode):
 class PredefinedClassNode(ASTNode):
     """A class node with a known key characteristic: \d, \D, \w, \W, etc"""
 
-    # TODO: Shoud this be a enum?
+    # TODO: This should be an enum
     class_type: str
 
     def __repr__(self):
         return f"PredefinedClass(\\{self.class_type})"
-
 
 @dataclass
 class QuantifierNode(ASTNode):

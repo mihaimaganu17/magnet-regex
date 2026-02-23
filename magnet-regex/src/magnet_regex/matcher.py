@@ -1,6 +1,7 @@
 from dataclasses import dataclass
+import string
 from typing import Optional
-from magnet_regex.ast_node import ASTNode, CharClassNode, CharNode, DotNode
+from magnet_regex.ast_node import ASTNode, CharClassNode, CharNode, DotNode, PredefinedClassNode
 
 
 @dataclass
@@ -35,6 +36,21 @@ class Matcher:
         self.length = 0
         self.captures: dict[int, Optional[str]] = {}
 
+        self._init_char_classes()
+
+    def _init_char_classes(self):
+        self.digit_chars = set("0123456789")
+        lowercase_letters = [
+            "".join([chr(l) for l in range(ord("a"), ord("z") + 1)])
+        ]
+        uppercase_letters = [
+            "".join([chr(l) for l in range(ord("A"), ord("Z") + 1)])
+        ]
+        self.word_chars = set(lowercase_letters + uppercase_letters + self.digit_chars + "_")
+        # OR
+        self.word_chars = set(string.ascii_letters + string.digits + "_")
+        self.whitespace_chars = set(" \t\n\r\f\v")
+
     def match(self, text: str, start: int = 0) -> Optional[Match]:
         # Resetting previous state
         self.text = text
@@ -55,6 +71,8 @@ class Matcher:
             return self._match_dot(node, pos)
         elif isinstance(node, CharClassNode):
             return self._match_char_class(node, pos)
+        elif isinstance(node, PredefinedClassNode):
+            return self._match_predefined_class(node, pos)
 
 
     def _match_char(self, node: CharNode, pos: int) -> Optional[int]:
@@ -104,3 +122,28 @@ class Matcher:
             return pos + 1
         else:
             return None
+
+    def _match_predefined_class(self, node: PredefinedClassNode, pos: int) -> Optional[int]:
+        if pos >= self.length:
+            return None
+
+        char = self.text[pos]
+        matched = False
+
+        if node.class_type == 'd':
+            matched = char in self.digit_chars
+        elif node.class_type == "D":
+            matched = char not in self.digit_chars
+        elif node.class_type == 'w':
+            matched = char in self.word_chars
+        elif node.class_type == 'W':
+            matched = char not in self.word_chars
+        elif node.class_type == 's':
+            matched = char in self.whitespace_chars
+        elif node.class_type == 'S':
+            matched = char not in self.whitespace_chars
+
+        if matched:
+            return pos + 1
+
+        return None
