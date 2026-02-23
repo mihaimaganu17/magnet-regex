@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 import string
 from typing import Optional
-from magnet_regex.ast_node import ASTNode, AlternationNonde, CharClassNode, CharNode, ConcatNode, DotNode, GroupNode, PredefinedClassNode, QuantifierNode
+from magnet_regex.ast_node import ASTNode, AlternationNonde, CharClassNode, CharNode, ConcatNode, DotNode, GroupNode, NonCapturingGroupNode, PredefinedClassNode, QuantifierNode
 
 
 @dataclass
@@ -81,6 +81,8 @@ class Matcher:
             return self._match_alternation(node, pos)
         elif isinstance(node, GroupNode):
             return self._match_group(node, pos)
+        elif isinstance(node, NonCapturingGroupNode):
+            return self._match_non_capturing_group(node, pos)
 
     def _match_char(self, node: CharNode, pos: int) -> Optional[int]:
         if pos >= self.length:
@@ -285,3 +287,8 @@ class Matcher:
         #    elif node.group_number in self.captures:
         #        del self.captures[node.group_number]
         return None
+
+    def _match_non_capturing_group(self, node: NonCapturingGroupNode, pos: int) -> Optional[int]:
+        end_pos = self._match_node(node.child, pos)
+
+        return end_pos
