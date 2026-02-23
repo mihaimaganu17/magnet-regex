@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 import string
 from typing import Optional
-from magnet_regex.ast_node import ASTNode, AlternationNonde, CharClassNode, CharNode, ConcatNode, DotNode, GroupNode, NonCapturingGroupNode, PredefinedClassNode, QuantifierNode
+from magnet_regex.ast_node import ASTNode, AlternationNonde, BackreferenceNode, CharClassNode, CharNode, ConcatNode, DotNode, GroupNode, NonCapturingGroupNode, PredefinedClassNode, QuantifierNode
 
 
 @dataclass
@@ -83,6 +83,8 @@ class Matcher:
             return self._match_group(node, pos)
         elif isinstance(node, NonCapturingGroupNode):
             return self._match_non_capturing_group(node, pos)
+        elif isinstance(node, BackreferenceNode):
+            return self._match_backref(node, pos)
 
     def _match_char(self, node: CharNode, pos: int) -> Optional[int]:
         if pos >= self.length:
@@ -280,15 +282,37 @@ class Matcher:
         if end_pos is not None:
             self.captures[node.group_number] = self.text[pos:end_pos]
             return end_pos
-        # TODO: Should this be in backreference?
-        # else:
-        #    if old_capture is not None:
-        #        self.captures[node.group_number] = old_capture
-        #    elif node.group_number in self.captures:
-        #        del self.captures[node.group_number]
-        return None
+        # Should this be in backreference
+        else:
+            if old_capture is not None:
+                self.captures[node.group_number] = old_capture
+            elif node.group_number in self.captures:
+                del self.captures[node.group_number]
+            return None
 
     def _match_non_capturing_group(self, node: NonCapturingGroupNode, pos: int) -> Optional[int]:
         end_pos = self._match_node(node.child, pos)
 
         return end_pos
+
+    def _match_backref(self, node: BackreferenceNode, pos: int) -> Optional[int]:
+        captured = self.captures.get(node.group_number)
+
+        if captured is None:
+            return None
+
+        end_pos = pos + len(captured)
+
+        if end_pos > self.length:
+            return None
+
+        text_slice = self.text[pos:end_pos]
+
+        if self.ignore_case:
+            if text_slice.lower() == captured.lower():
+                return end_pos
+        else:
+            if text_slice == captured:
+                return end_pos
+
+        return None
